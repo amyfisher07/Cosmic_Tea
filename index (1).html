@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cosmic Tea</title>
+<meta name="description" content="Real astrology. All the tea.">
+<link rel="icon" href="icon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cosmic Tea">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f1e8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2/astronomy.browser.min.js"></script>
+<style>
+  :root{
+    --bg:#141026;
+    --bg-elevated:#1c1733;
+    --card:#221d3d;
+    --card-border:#332c56;
+    --text:#f3efe8;
+    --text-dim:#b7aed6;
+    --text-faint:#8a80ab;
+    --accent:#e8c77c;
+    --accent-soft:#3a3159;
+    --rose:#e0a3a3;
+    --link:#e8c77c;
+    --shadow: 0 8px 30px rgba(0,0,0,0.35);
+    --radius: 18px;
+    --font-display: 'Montserrat', -apple-system, sans-serif;
+    --font-body: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f6f1e8;
+      --bg-elevated:#fffdf8;
+      --card:#ffffff;
+      --card-border:#e8dfc9;
+      --text:#241f38;
+      --text-dim:#5c5478;
+      --text-faint:#8b83a3;
+      --accent:#a8813a;
+      --accent-soft:#f1e4c4;
+      --rose:#b3595f;
+      --link:#8a5a1f;
+      --shadow: 0 8px 24px rgba(60,45,20,0.10);
+      color-scheme: light;
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#f6f1e8;
+    --bg-elevated:#fffdf8;
+    --card:#ffffff;
+    --card-border:#e8dfc9;
+    --text:#241f38;
+    --text-dim:#5c5478;
+    --text-faint:#8b83a3;
+    --accent:#a8813a;
+    --accent-soft:#f1e4c4;
+    --rose:#b3595f;
+    --link:#8a5a1f;
+    --shadow: 0 8px 24px rgba(60,45,20,0.10);
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--font-body);
+    -webkit-font-smoothing:antialiased;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    height:calc(var(--app-vh, 1vh) * 100);
+  }
+  #scroll-area{
+    flex:1 1 auto;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:20px 18px 8px;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:700;margin:0 0 6px;}
+  p{line-height:1.55;color:var(--text);margin:0 0 12px;}
+  .muted{color:var(--text-dim);}
+  .faint{color:var(--text-faint);font-size:13px;}
+  a{color:var(--link);}
+  button{font-family:var(--font-body);cursor:pointer;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--accent);color:#221a08;border:none;border-radius:999px;
+    padding:13px 22px;font-size:15px;font-weight:600;transition:transform .15s ease, opacity .15s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn-outline{
+    background:transparent;color:var(--text);border:1px solid var(--card-border);
+    border-radius:999px;padding:12px 20px;font-size:14px;font-weight:600;
+    transition:background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .btn-outline.saved-flash{
+    background:var(--accent);color:#221a08;border-color:var(--accent);
+  }
+  .btn-ghost{
+    background:transparent;color:var(--text-dim);border:none;font-size:14px;
+    text-decoration:underline;padding:6px 2px;
+  }
+  .btn-danger{color:var(--rose);}
+  .btn-block{width:100%;}
+  .card{
+    background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);
+    padding:20px;margin-bottom:16px;box-shadow:var(--shadow);
+  }
+  input,select,textarea{
+    width:100%;background:var(--bg-elevated);border:1px solid var(--card-border);
+    color:var(--text);border-radius:12px;padding:12px 13px;font-size:15px;font-family:var(--font-body);
+    margin-bottom:2px;
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px;}
+  label{display:block;font-size:13px;color:var(--text-dim);margin:14px 0 6px;font-weight:600;}
+  .field-row{display:flex;gap:10px;}
+  .field-row > div{flex:1;}
+  .pill-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .pill{
+    border:1px solid var(--card-border);background:var(--bg-elevated);color:var(--text-dim);
+    border-radius:999px;padding:8px 14px;font-size:13px;font-weight:500;user-select:none;
+  }
+  .pill.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent);}
+  .top-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{font-size:24px;}
+  .brand-name{font-family:var(--font-display);font-size:20px;font-weight:500;letter-spacing:0.2px;}
+  .icon-btn{background:transparent;border:none;color:var(--text-dim);font-size:20px;padding:6px;}
+  .tabbar{
+    flex:0 0 auto;background:var(--bg-elevated);
+    border-top:1px solid var(--card-border);display:flex;justify-content:space-around;
+    padding:10px 6px calc(10px + env(safe-area-inset-bottom));
+  }
+  .tab{
+    background:none;border:none;display:flex;flex-direction:column;align-items:center;gap:3px;
+    color:var(--text-faint);font-size:11px;font-weight:600;padding:4px 10px;flex:1;
+  }
+  .tab.active{color:var(--accent);}
+  .tab .tico{font-size:19px;}
+  .reading .section-header{
+    font-family:var(--font-body);font-size:19px;font-weight:800;color:var(--accent);
+    margin:24px 0 8px;line-height:1.3;letter-spacing:0.1px;
+  }
+  .reading .section-header:first-child{margin-top:0;}
+  .reading p{margin:0 0 12px;font-size:15px;line-height:1.6;}
+  .reading strong{color:var(--text);font-weight:700;}
+  .reading .mantra{
+    margin-top:18px;padding:14px 16px;background:var(--accent-soft);border-radius:14px;
+    font-family:var(--font-body);font-style:normal;font-weight:600;font-size:16px;color:var(--accent);text-align:center;
+  }
+  .vibe-line{font-family:var(--font-body);font-weight:700;font-size:19px;line-height:1.4;margin-bottom:14px;}
+  .spinner{
+    display:inline-block;width:16px;height:16px;border:2px solid var(--accent-soft);
+    border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 10px;text-align:center;}
+  .loading-msg{color:var(--text-dim);font-size:14px;}
+  .empty-state{text-align:center;padding:30px 10px;color:var(--text-dim);}
+  .person-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;
+    border-bottom:1px solid var(--card-border);}
+  .person-row:last-child{border-bottom:none;}
+  .person-meta{font-size:13px;color:var(--text-faint);}
+  .person-name{font-weight:600;}
+  .tag{font-size:11px;color:var(--text-faint);border:1px solid var(--card-border);border-radius:999px;
+    padding:2px 9px;margin-left:6px;}
+  .row-actions{display:flex;gap:8px;}
+  .icon-action{background:none;border:none;color:var(--text-faint);font-size:16px;padding:4px 6px;}
+  .peek-tabs{display:flex;gap:6px;margin-bottom:16px;}
+  .peek-tab{flex:1;padding:10px 4px;border-radius:12px;border:1px solid var(--card-border);
+    background:var(--bg-elevated);color:var(--text-dim);font-size:13px;font-weight:600;text-align:center;}
+  .peek-tab.active{background:var(--accent);color:#221a08;border-color:var(--accent);}
+  .share-code-box{
+    background:var(--bg-elevated);border:1px dashed var(--card-border);border-radius:12px;
+    padding:14px;font-family:monospace;font-size:12px;word-break:break-all;color:var(--text-dim);
+    margin:10px 0;
+  }
+  .divider{height:1px;background:var(--card-border);margin:20px 0;}
+  .section-title{font-size:12px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-faint);
+    font-weight:700;margin:0 0 10px;}
+  .hint{font-size:12px;color:var(--text-faint);margin-top:-2px;margin-bottom:10px;}
+  .close-x{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--text-faint);font-size:22px;}
+  .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:100;display:flex;
+    align-items:flex-end;justify-content:center;}
+  .modal-sheet{background:var(--bg);width:100%;max-width:560px;border-radius:22px 22px 0 0;
+    padding:24px 20px calc(24px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;position:relative;}
+  .onboard-step{display:none;}
+  .onboard-step.active{display:block;}
+  .progress-dots{display:flex;gap:6px;justify-content:center;margin-bottom:22px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--card-border);}
+  .dot.active{background:var(--accent);}
+  ::selection{background:var(--accent-soft);}
+  textarea{resize:vertical;min-height:70px;}
+  html,body{overflow-x:hidden;}
+  input[type="number"], input[type="date"], input[type="time"]{width:100%;max-width:100%;min-width:0;-webkit-appearance:none;appearance:none;}
+  .field-row{min-width:0;}
+  .field-row > div{min-width:0;}
+  @media (max-width:420px){
+    .field-row{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<div id="scroll-area">
+<div class="wrap" id="app"></div>
+</div>
+
+<div class="tabbar" id="tabbar" style="display:none;">
+  <button class="tab" data-tab="today"><span class="tico">☾</span>Today</button>
+  <button class="tab" data-tab="peek"><span class="tico">✦</span>Peek</button>
+  <button class="tab" data-tab="orbit"><span class="tico">◎</span>Orbit</button>
+  <button class="tab" data-tab="settings"><span class="tico">⚙</span>Settings</button>
+</div>
+
+<div id="modal-root"></div>
+
+<script>
+/* =========================================================
+   COSMIC TEA — data + astro engine + app
+   ========================================================= */
+
+// Measure the REAL visible height with JS rather than trusting vh/dvh —
+// inside an embedded mobile view, viewport units can reflect a taller
+// frame than what's actually shown, pushing fixed-bottom UI off-screen.
+function setAppHeight(){
+  document.documentElement.style.setProperty('--app-vh', (window.innerHeight * 0.01) + 'px');
+}
+setAppHeight();
+window.addEventListener('resize', setAppHeight);
+window.addEventListener('orientationchange', ()=>setTimeout(setAppHeight, 100));
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize', setAppHeight);
+}
+
+const SIGNS = ['Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio','Sagittarius','Capricorn','Aquarius','Pisces'];
+const SIGN_GLYPH = {Aries:'♈',Taurus:'♉',Gemini:'♊',Cancer:'♋',Leo:'♌',Virgo:'♍',Libra:'♎',Scorpio:'♏',Sagittarius:'♐',Capricorn:'♑',Aquarius:'♒',Pisces:'♓'};
+
+const PLANET_GLOSS = {
+  Sun:'your core identity and vitality',
+  Moon:'your emotional inner world and instincts',
+  Mercury:'communication, thinking, and how you process things',
+  Venus:'how you love, connect, and what you value',
+  Mars:'drive, desire, and how you assert yourself',
+  Jupiter:'growth, luck, and where you expand',
+  Saturn:'structure, limits, and discipline',
+  Uranus:'sudden change, disruption, and originality',
+  Neptune:'dreams, intuition, and blurred edges',
+  Pluto:'transformation, intensity, and power',
+  NorthNode:'the direction you\'re growing toward'
+};
+
+const HOUSE_THEME = {
+  1:'you — identity, how you show up',
+  2:'money, self-worth, what you value',
+  3:'communication, everyday connections, quick decisions',
+  4:'home, family, your inner foundation',
+  5:'romance, creativity, self-expression, fun',
+  6:'daily routines, health, work-in-the-weeds',
+  7:'partnerships, one-on-one relationships',
+  8:'intimacy, shared resources, transformation',
+  9:'big ideas, travel, beliefs, the bigger picture',
+  10:'career, public life, reputation',
+  11:'friendship, community, future goals',
+  12:'rest, the subconscious, things behind the scenes'
+};
+
+// Fixed emoji + short label per house — the app controls this header directly
+// (never the AI) so it renders identically every time.
+const HOUSE_EMOJI_LABEL = {
+  1:{emoji:'🪞', label:'You'},
+  2:{emoji:'💰', label:'Money & Worth'},
+  3:{emoji:'💬', label:'Everyday Connection'},
+  4:{emoji:'🏡', label:'Home & Roots'},
+  5:{emoji:'🎨', label:'Romance & Creativity'},
+  6:{emoji:'🌿', label:'Routine & Health'},
+  7:{emoji:'❤️', label:'Partnership'},
+  8:{emoji:'🔥', label:'Intimacy & Transformation'},
+  9:{emoji:'🧭', label:'Big Picture'},
+  10:{emoji:'🏔️', label:'Career & Public Life'},
+  11:{emoji:'🌐', label:'Friendship & Community'},
+  12:{emoji:'🌙', label:'Rest & Behind the Scenes'}
+};
+
+// Small preset city list (lat, lon, standard UTC offset — not DST-adjusted; user can override)
+const CITY_DB = [
+  {name:'Rapid City, SD', lat:44.0805, lon:-103.2310, utc:-7},
+  {name:'Denver, CO', lat:39.7392, lon:-104.9903, utc:-7},
+  {name:'New York, NY', lat:40.7128, lon:-74.0060, utc:-5},
+  {name:'Los Angeles, CA', lat:34.0522, lon:-118.2437, utc:-8},
+  {name:'Chicago, IL', lat:41.8781, lon:-87.6298, utc:-6},
+  {name:'Houston, TX', lat:29.7604, lon:-95.3698, utc:-6},
+  {name:'Phoenix, AZ', lat:33.4484, lon:-112.0740, utc:-7},
+  {name:'Philadelphia, PA', lat:39.9526, lon:-75.1652, utc:-5},
+  {name:'San Antonio, TX', lat:29.4241, lon:-98.4936, utc:-6},
+  {name:'San Diego, CA', lat:32.7157, lon:-117.1611, utc:-8},
+  {name:'Dallas, TX', lat:32.7767, lon:-96.7970, utc:-6},
+  {name:'Austin, TX', lat:30.2672, lon:-97.7431, utc:-6},
+  {name:'Seattle, WA', lat:47.6062, lon:-122.3321, utc:-8},
+  {name:'Denver-Boulder, CO', lat:40.0150, lon:-105.2705, utc:-7},
+  {name:'Minneapolis, MN', lat:44.9778, lon:-93.2650, utc:-6},
+  {name:'Portland, OR', lat:45.5152, lon:-122.6784, utc:-8},
+  {name:'Las Vegas, NV', lat:36.1699, lon:-115.1398, utc:-8},
+  {name:'Atlanta, GA', lat:33.7490, lon:-84.3880, utc:-5},
+  {name:'Miami, FL', lat:25.7617, lon:-80.1918, utc:-5},
+  {name:'Boston, MA', lat:42.3601, lon:-71.0589, utc:-5},
+  {name:'Nashville, TN', lat:36.1627, lon:-86.7816, utc:-6},
+  {name:'Salt Lake City, UT', lat:40.7608, lon:-111.8910, utc:-7},
+  {name:'Kansas City, MO', lat:39.0997, lon:-94.5786, utc:-6},
+  {name:'Omaha, NE', lat:41.2565, lon:-95.9345, utc:-6},
+  {name:'Sioux Falls, SD', lat:43.5446, lon:-96.7311, utc:-6},
+  {name:'Detroit, MI', lat:42.3314, lon:-83.0458, utc:-5},
+  {name:'Washington, DC', lat:38.9072, lon:-77.0369, utc:-5},
+  {name:'London, UK', lat:51.5072, lon:-0.1276, utc:0},
+  {name:'Toronto, Canada', lat:43.6532, lon:-79.3832, utc:-5},
+  {name:'Mexico City, Mexico', lat:19.4326, lon:-99.1332, utc:-6},
+  {name:'Sydney, Australia', lat:-33.8688, lon:151.2093, utc:10},
+  {name:'Other / enter manually', lat:null, lon:null, utc:null}
+];
+
+/* ---------------- LOCATION FIELDS (shared, reusable) ---------------- */
+// City is always a free-text field; the dropdown is just a quick-fill convenience.
+// Lat/lon/UTC are always visible and editable, so any birthplace works, not just presets.
+
+function locationFieldsHTML(prefix, vals){
+  vals = vals || {};
+  return `
+    <label>Birth city</label>
+    <input id="${prefix}-city-name" type="text" list="citylist-${prefix}" placeholder="Type a city, e.g. Saginaw, MI" value="${esc(vals.cityName||'')}" oninput="onCityTyped('${prefix}')">
+    <datalist id="citylist-${prefix}">
+      ${CITY_DB.filter(c=>c.lat!==null).map(c=>`<option value="${esc(c.name)}">`).join('')}
+    </datalist>
+    <details id="${prefix}-advanced-details" style="margin-top:10px;">
+      <summary style="cursor:pointer;font-size:13px;color:var(--text-dim);">Advanced: adjust exact coordinates</summary>
+      <div style="margin-top:10px;">
+        <a id="${prefix}-map-link" href="#" target="_blank" rel="noopener" style="display:${vals.cityName?'inline-block':'none'};font-size:13px;margin-bottom:8px;">📍 Look up coordinates on Google Maps →</a>
+        <div class="field-row">
+          <div><label>Latitude</label><input id="${prefix}-lat" type="number" step="0.0001" value="${vals.lat!=null?vals.lat:''}" placeholder="e.g. 44.08"></div>
+          <div><label>Longitude</label><input id="${prefix}-lon" type="number" step="0.0001" value="${vals.lon!=null?vals.lon:''}" placeholder="e.g. -103.23"></div>
+        </div>
+        <label>UTC offset at time of birth</label>
+        <input id="${prefix}-utc" type="number" step="1" value="${vals.utc!=null?vals.utc:''}" placeholder="e.g. -7">
+        <div class="hint">We fill these in automatically for recognized cities. Only touch this if the city wasn't recognized, or the birth date fell during daylight saving time.</div>
+      </div>
+    </details>
+  `;
+}
+
+function updateMapLink(prefix){
+  const nameEl = document.getElementById(prefix+'-city-name');
+  const linkEl = document.getElementById(prefix+'-map-link');
+  if(!nameEl || !linkEl) return;
+  const val = nameEl.value.trim();
+  if(val){
+    linkEl.href = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(val);
+    linkEl.style.display = 'inline-block';
+  } else {
+    linkEl.style.display = 'none';
+  }
+}
+
+// Silently auto-fills lat/lon/UTC when the typed city matches a known one —
+// keeps the coordinate fields out of the way for the common case.
+function onCityTyped(prefix){
+  updateMapLink(prefix);
+  const nameEl = document.getElementById(prefix+'-city-name');
+  const typed = nameEl.value.trim().toLowerCase();
+  const match = CITY_DB.find(c=>c.lat!==null && c.name.toLowerCase()===typed);
+  if(match){
+    const latEl = document.getElementById(prefix+'-lat');
+    const lonEl = document.getElementById(prefix+'-lon');
+    const utcEl = document.getElementById(prefix+'-utc');
+    if(latEl) latEl.value = match.lat;
+    if(lonEl) lonEl.value = match.lon;
+    if(utcEl) utcEl.value = match.utc;
+  }
+}
+
+function readLocationFields(prefix){
+  return {
+    cityName: document.getElementById(prefix+'-city-name').value.trim(),
+    lat: parseFloat(document.getElementById(prefix+'-lat').value),
+    lon: parseFloat(document.getElementById(prefix+'-lon').value),
+    utc: document.getElementById(prefix+'-utc').value
+  };
+}
+
+/* ---------------- ASTRO ENGINE ---------------- */
+
+const PLANET_BODIES = {
+  Sun:'Sun', Moon:'Moon', Mercury:'Mercury', Venus:'Venus', Mars:'Mars',
+  Jupiter:'Jupiter', Saturn:'Saturn', Uranus:'Uranus', Neptune:'Neptune', Pluto:'Pluto'
+};
+
+function norm360(x){ x = x % 360; if(x<0) x += 360; return x; }
+
+function lonToSignPos(lon){
+  const idx = Math.floor(lon/30) % 12;
+  const deg = lon % 30;
+  return {sign:SIGNS[idx], deg:deg, glyph:SIGN_GLYPH[SIGNS[idx]]};
+}
+
+function makeUtcDate(dateStr, timeStr, utcOffsetHours){
+  // dateStr: 'YYYY-MM-DD', timeStr: 'HH:MM', utcOffsetHours: number (e.g. -7)
+  const [y,mo,d] = dateStr.split('-').map(Number);
+  const [hh,mm] = timeStr.split(':').map(Number);
+  // local wall time minus offset = UTC
+  const utcMillis = Date.UTC(y, mo-1, d, hh, mm) - utcOffsetHours*3600*1000;
+  return new Date(utcMillis);
+}
+
+function obliquityDeg(time){
+  // Mean obliquity of the ecliptic, Meeus low-precision formula
+  // NOTE: Astronomy Engine's time.tt is already days-since-J2000 TT, not a full Julian Date.
+  const T = time.tt/36525;
+  const eps = 23 + 26/60 + 21.448/3600
+    - (46.8150/3600)*T - (0.00059/3600)*T*T + (0.001813/3600)*T*T*T;
+  return eps;
+}
+
+function siderealTimeDeg(time, lonDeg){
+  const gstHours = Astronomy.SiderealTime(time); // Greenwich apparent sidereal time, hours
+  let lstHours = gstHours + lonDeg/15;
+  lstHours = ((lstHours % 24) + 24) % 24;
+  return lstHours * 15; // degrees
+}
+
+function computeAscMC(time, latDeg, lonDeg){
+  const ramc = siderealTimeDeg(time, lonDeg) * Math.PI/180;
+  const eps = obliquityDeg(time) * Math.PI/180;
+  const lat = latDeg * Math.PI/180;
+
+  const mcRad = Math.atan2(Math.sin(ramc), Math.cos(ramc)*Math.cos(eps));
+  let mc = norm360(mcRad * 180/Math.PI);
+
+  const ascY = Math.cos(ramc);
+  const ascX = -(Math.sin(ramc)*Math.cos(eps) + Math.tan(lat)*Math.sin(eps));
+  const ascRad = Math.atan2(ascY, ascX);
+  let asc = norm360(ascRad * 180/Math.PI);
+
+  return {asc, mc};
+}
+
+function meanNorthNodeLon(time){
+  const T = time.tt/36525;
+  let node = 125.04452 - 1934.136261*T + 0.0020708*T*T + (T*T*T)/450000;
+  return norm360(node);
+}
+
+function equalHouses(ascDeg){
+  const houses = [];
+  for(let i=0;i<12;i++) houses.push(norm360(ascDeg + i*30));
+  return houses;
+}
+
+function houseOfLongitude(lon, houses){
+  const cusps = houses.concat([houses[0]+360]);
+  for(let i=0;i<12;i++){
+    let start = cusps[i], end = cusps[i+1];
+    let lonAdj = lon >= start ? lon : lon+360;
+    let endAdj = end > start ? end : end+360;
+    if(lonAdj>=start && lonAdj<endAdj) return i+1;
+  }
+  return 1;
+}
+
+function geoEclipticLongitude(body, time){
+  // Astronomy Engine's EclipticLongitude() is HELIOCENTRIC — wrong for astrology.
+  // We need geocentric apparent ecliptic longitude, computed via GeoVector + Ecliptic.
+  const gv = Astronomy.GeoVector(body, time, true);
+  const ecl = Astronomy.Ecliptic(gv);
+  return ecl.elon;
+}
+
+function planetLongitudes(time){
+  const out = {};
+  out.Sun = Astronomy.SunPosition(time).elon;
+  out.Moon = Astronomy.EclipticGeoMoon(time).lon;
+  for(const [key, body] of Object.entries(PLANET_BODIES)){
+    if(key==='Sun' || key==='Moon') continue;
+    out[key] = geoEclipticLongitude(body, time);
+  }
+  out.NorthNode = meanNorthNodeLon(time);
+  return out;
+}
+
+// Build a full chart: planets w/ sign+house, angles, houses
+function buildChart(dateStr, timeStr, lat, lon, utcOffset){
+  const utcDate = makeUtcDate(dateStr, timeStr, utcOffset);
+  const time = Astronomy.MakeTime(utcDate);
+  const lons = planetLongitudes(time);
+  const {asc, mc} = computeAscMC(time, lat, lon);
+  const houses = equalHouses(asc);
+
+  const planets = {};
+  for(const [name, lonVal] of Object.entries(lons)){
+    const sp = lonToSignPos(lonVal);
+    planets[name] = {lon:lonVal, sign:sp.sign, deg:sp.deg, glyph:sp.glyph, house: houseOfLongitude(lonVal, houses)};
+  }
+  const ascPos = lonToSignPos(asc);
+  const mcPos = lonToSignPos(mc);
+
+  return {planets, asc:{lon:asc, sign:ascPos.sign, deg:ascPos.deg}, mc:{lon:mc, sign:mcPos.sign, deg:mcPos.deg}, houses};
+}
+
+// Light chart: sun sign only, from a birthday (no year assumption needed beyond month/day)
+function sunSignFromDate(monthDay){
+  // Accept any reasonable format (MM-DD, M/D, with or without a year) —
+  // pull out the first two numbers found rather than assuming a strict format.
+  const nums = (String(monthDay||'').match(/\d+/g) || []).map(Number);
+  const mm = nums[0], dd = nums[1];
+  const cutoffs = [
+    [1,20,'Capricorn'],[2,19,'Aquarius'],[3,20,'Pisces'],[4,20,'Aries'],
+    [5,21,'Taurus'],[6,21,'Gemini'],[7,22,'Cancer'],[8,23,'Leo'],
+    [9,23,'Virgo'],[10,23,'Libra'],[11,22,'Scorpio'],[12,21,'Sagittarius'],[12,32,'Capricorn']
+  ];
+  if(!mm || !dd || mm<1 || mm>12 || dd<1 || dd>31) return 'Capricorn';
+  for(let i=0;i<cutoffs.length;i++){
+    const [cm,cd,sign] = cutoffs[i];
+    if(mm<cm || (mm===cm && dd<=cd)) return sign;
+  }
+  return 'Capricorn';
+}
+
+const ASPECTS = {Conjunction:0, Sextile:60, Square:90, Trine:120, Opposition:180};
+function angleDiff(a,b){ let d = Math.abs(a-b)%360; return Math.min(d,360-d); }
+
+function findAspects(transitLons, natalPlanets, natalAngles, orb){
+  const results = [];
+  for(const [tname, tlon] of Object.entries(transitLons)){
+    for(const [nname, np] of Object.entries(natalPlanets)){
+      const d = angleDiff(tlon, np.lon);
+      for(const [aname, aval] of Object.entries(ASPECTS)){
+        const delta = Math.abs(d-aval);
+        if(delta <= orb) results.push({transit:tname, aspect:aname, natal:nname, orb:delta, type:'planet'});
+      }
+    }
+    for(const [aname2, apos] of Object.entries(natalAngles)){
+      const d = angleDiff(tlon, apos.lon);
+      for(const [aname, aval] of Object.entries(ASPECTS)){
+        const delta = Math.abs(d-aval);
+        if(delta <= orb) results.push({transit:tname, aspect:aname, natal:aname2, orb:delta, type:'angle'});
+      }
+    }
+  }
+  results.sort((a,b)=>a.orb-b.orb);
+  return results;
+}
+
+// Synastry: compare two natal charts directly against each other (not transits).
+// Used for "our vibe together" Orbit readings.
+function findSynastryAspects(chartA, chartB, orb){
+  const planetsA = {};
+  for(const name of Object.keys(PLANET_BODIES)) planetsA[name] = chartA.planets[name];
+  const planetsB = {};
+  for(const name of Object.keys(PLANET_BODIES)) planetsB[name] = chartB.planets[name];
+
+  const results = [];
+  for(const [aName, aPos] of Object.entries(planetsA)){
+    for(const [bName, bPos] of Object.entries(planetsB)){
+      const d = angleDiff(aPos.lon, bPos.lon);
+      for(const [aspectName, aspectVal] of Object.entries(ASPECTS)){
+        const delta = Math.abs(d - aspectVal);
+        if(delta <= orb) results.push({a:aName, b:bName, aspect:aspectName, orb:delta});
+      }
+    }
+  }
+  results.sort((x,y)=>x.orb-y.orb);
+  return results;
+}
+
+// Decide which natal house is most "active" today — used to pick a fixed,
+// app-controlled header (never left to the AI, so it's always consistent).
+function determineActiveHouse(transitLons, natalChart, orb){
+  const natalPlanets = {};
+  for(const name of Object.keys(PLANET_BODIES)) natalPlanets[name] = natalChart.planets[name];
+  natalPlanets.NorthNode = natalChart.planets.NorthNode;
+  const natalAngles = {Ascendant: natalChart.asc, Midheaven: natalChart.mc};
+  const aspects = findAspects(transitLons, natalPlanets, natalAngles, orb);
+
+  if(aspects.length > 0){
+    const top = aspects[0];
+    if(top.natal === 'Ascendant') return 1;
+    if(top.natal === 'Midheaven') return 10;
+    return natalChart.planets[top.natal].house;
+  }
+  // Fallback: whichever house the fast-moving transiting Moon currently occupies
+  return houseOfLongitude(transitLons.Moon, natalChart.houses);
+}
+
+/* ---------------- STORAGE ---------------- */
+
+const STORE_KEYS = {
+  profile:'cosmicTea_profile', people:'cosmicTea_people', friends:'cosmicTea_friends',
+  focus:'cosmicTea_focus', cache:'cosmicTea_cache', onboarded:'cosmicTea_onboarded'
+};
+
+function loadJSON(key, fallback){
+  try{
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+function saveJSON(key, val){
+  try{ localStorage.setItem(key, JSON.stringify(val)); return true; }
+  catch(e){ return false; }
+}
+
+let STATE = {
+  profile: loadJSON(STORE_KEYS.profile, null),
+  people: loadJSON(STORE_KEYS.people, []),
+  friends: loadJSON(STORE_KEYS.friends, []),
+  focus: loadJSON(STORE_KEYS.focus, {areas:[], notes:''}),
+  cache: loadJSON(STORE_KEYS.cache, {}),
+  tab: 'today',
+  peekMode: 'tomorrow'
+};
+
+function persist(key){
+  const map = {profile:'profile', people:'people', friends:'friends', focus:'focus', cache:'cache'};
+  saveJSON(STORE_KEYS[key], STATE[key]);
+}
+
+/* ---------------- AI GENERATION (via your own Cloudflare Worker) ----------------
+   Cosmic Tea used to generate readings through Claude's built-in "sample"
+   capability, which only works while the app runs inside a Claude artifact.
+   Now that it's a standalone page, it calls a small Worker you deploy
+   yourself (see the deployment guide) — the Worker holds your Anthropic API
+   key and proxies the request, so friends never need a Claude account or an
+   API key of their own. */
+
+// After you deploy the Worker, paste its URL here (looks like
+// https://cosmic-tea-worker.YOUR-SUBDOMAIN.workers.dev).
+const AI_CONFIG = {
+  workerUrl: 'https://cosmic-tea-worker.amyfisher07.workers.dev'
+};
+
+function aiConfigured(){
+  return !!AI_CONFIG.workerUrl && !AI_CONFIG.workerUrl.includes('PASTE_YOUR_WORKER_URL_HERE');
+}
+
+async function callAI(promptText, modelTier){
+  const res = await fetch(AI_CONFIG.workerUrl, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({prompt: promptText, modelTier: modelTier || 'default'})
+  });
+  if(!res.ok){
+    const errBody = await res.text().catch(()=>'');
+    throw new Error('Worker error ' + res.status + (errBody ? ': ' + errBody : ''));
+  }
+  const data = await res.json();
+  if(data.error) throw new Error(data.error);
+  return data.text;
+}
+
+// The model is asked to return raw JSON, but strips it defensively in case
+// it wraps the object in a markdown code fence or adds stray text around it.
+function extractJSON(raw){
+  let t = (raw||'').trim();
+  t = t.replace(/^```(?:json)?/i, '').replace(/```$/,'').trim();
+  const start = t.indexOf('{');
+  const end = t.lastIndexOf('}');
+  if(start>=0 && end>start) t = t.slice(start, end+1);
+  return JSON.parse(t);
+}
+
+/* ---------------- VOICE / PROMPT BUILDING ---------------- */
+
+const VOICE_SYSTEM_PROMPT = `You are the voice of Cosmic Tea, a daily astrology app. Write like a smart, emotionally attuned friend who happens to know astrology really well — someone sitting beside the reader saying "okay, here's what's going on, here's what you might notice, here's what you can do with it."
+
+TONE: warm, witty, grounded, intimate, contemporary, a little playful and irreverent. Never mystical, grandiose, preachy, or "the universe has commanded." Say "here's something to consider," never issue commands. The reader should feel seen, not analyzed; reassured, not patronized; curious, not confused; encouraged, not instructed.
+
+VOICE REGISTER: talk like a bestie texting — casual endearments are welcome ("babe," "baddie") where they fit naturally, plus light references to modern/of-the-moment culture (texting, social apps, etc.) when relevant. Don't force slang into every sentence — let it land where it's earned, especially in romance/relationship content. For career/focus/assignment content, keep it more grounded and motivating, less slangy.
+
+ASTROLOGY LITERACY RULE: whenever you name a planet, sign, house, or aspect, weave in a brief plain-English gloss right where you mention it — never a separate parenthetical definition, never a glossary aside. Example: "Venus, which is all about how we love, is doing something a little chaotic today" or "the Uranus flavor — which can read unexpected —". Assume the reader knows very little astrology jargon but is smart and will pick it up from context.
+
+CONVERSATIONAL, NOT CHOPPY: let ideas unfold in natural sentences of varying length. Avoid strings of short imperative commands ("Slow down. Breathe. Listen. Trust yourself."). A little specific, human humor is good — recognizable and in service of the insight, not random jokes.
+
+Always ground everything in the REAL astrological data provided to you — do not invent transits or aspects. Use the data to decide what the day is actually about, then write in voice.`;
+
+const DAILY_FORMAT_RULES = `OUTPUT FORMAT: respond with ONLY a JSON object (no markdown fences, no commentary before or after). The app supplies all headers, emoji, and layout itself — your job is ONLY the text content of each field, in voice. So:
+- Do NOT include emoji, markdown headers, or field labels inside the field text itself.
+- You MAY use **bold** sparingly inside a field for emphasis on a key phrase.
+- Keep every field to short, scannable sentences (2-3 sentences per paragraph-style field, not a wall of text).
+- Do not use the exact phrase "less force it, more" — vary your opening constructions day to day.
+
+Return exactly this JSON shape:
+{
+  "vibe": "one sentence, the day's vibe-summary, in the pattern 'the vibe is less X, more Y' or similar — punchy, no fluff",
+  "translation": "1-2 sentences unpacking what that vibe actually means for their actual day, in plain terms",
+  "morning": "1-2 sentences on the morning energy",
+  "midday": "1-2 sentences on the midday energy",
+  "evening": "1-2 sentences on the evening energy",
+  "asking": "2-3 sentences: what today is asking of the reader — the actionable insight",
+  "activeAreaText": "2-4 sentences reflecting specifically on the life area named in the task below — weave in relevant people context ONLY if it genuinely fits this specific area",
+  "assignment": "1-2 sentences: one small, concrete, doable action tied to the day's theme",
+  "mantra": "one short first-person sentence, no quotation marks needed"
+}`;
+
+function planetSummaryLine(name, p){
+  return `${name} (${PLANET_GLOSS[name]||''}) in ${p.sign} ${p.deg.toFixed(1)}°, house ${p.house}`;
+}
+
+function buildNatalSummary(chart){
+  const lines = [];
+  lines.push(`Ascendant/Rising: ${chart.asc.sign} ${chart.asc.deg.toFixed(1)}°`);
+  lines.push(`Midheaven: ${chart.mc.sign} ${chart.mc.deg.toFixed(1)}°`);
+  for(const name of Object.keys(PLANET_BODIES)){
+    lines.push(planetSummaryLine(name, chart.planets[name]));
+  }
+  lines.push(planetSummaryLine('NorthNode', chart.planets.NorthNode));
+  return lines.join('\n');
+}
+
+function buildTransitSummary(transitLons, natalChart, orb){
+  const natalPlanets = {};
+  for(const name of Object.keys(PLANET_BODIES)) natalPlanets[name] = natalChart.planets[name];
+  natalPlanets.NorthNode = natalChart.planets.NorthNode;
+  const natalAngles = {Ascendant: natalChart.asc, Midheaven: natalChart.mc};
+
+  const aspects = findAspects(transitLons, natalPlanets, natalAngles, orb);
+  const lines = [];
+  lines.push('Transiting planet positions today, and which natal house each falls in:');
+  for(const [name, lonVal] of Object.entries(transitLons)){
+    const sp = lonToSignPos(lonVal);
+    const house = houseOfLongitude(lonVal, natalChart.houses);
+    lines.push(`Transiting ${name} (${PLANET_GLOSS[name]||''}) in ${sp.sign} ${sp.deg.toFixed(1)}°, currently activating natal house ${house} (${HOUSE_THEME[house]})`);
+  }
+  lines.push('\nTight aspects from transiting planets to the natal chart (closest orb = most significant for today):');
+  if(aspects.length===0){ lines.push('No tight aspects within orb today — lean on the house-activation data above instead.'); }
+  for(const a of aspects.slice(0,10)){
+    lines.push(`Transiting ${a.transit} ${a.aspect} natal ${a.natal} (orb ${a.orb.toFixed(1)}°)`);
+  }
+  return lines.join('\n');
+}
+
+function buildPeopleContext(){
+  if(STATE.people.length===0) return '';
+  const lines = ['People in the reader\'s life they\'ve told the app about (use ONLY if genuinely relevant to a relationship-flavored section, and only by first name/label — never force it in):'];
+  for(const p of STATE.people){
+    let sign = p.tier==='full' && p.chart ? p.chart.planets.Sun.sign : sunSignFromDate(p.birthMonthDay);
+    lines.push(`- ${p.name} (${p.relation}): Sun sign ${sign}${p.tier==='full' ? ' — full chart known' : ' — sun sign only, keep any reference light/playful, not overly specific'}`);
+  }
+  return lines.join('\n');
+}
+
+function buildFocusContext(){
+  const f = STATE.focus;
+  if(!f || (f.areas.length===0 && !f.notes)) return '';
+  let lines = ['What the reader says they\'re currently focused on/thinking about (weave in naturally if relevant, don\'t force it):'];
+  if(f.areas.length) lines.push('Focus areas: ' + f.areas.join(', '));
+  if(f.notes) lines.push('In their own words: ' + f.notes);
+  return lines.join('\n');
+}
+
+async function generateDailyReading(){
+  const chart = STATE.profile.chart;
+  const now = new Date();
+  const time = Astronomy.MakeTime(now);
+
+  const transitLons = planetLongitudes(time);
+  const orb = 3;
+  const transitSummary = buildTransitSummary(transitLons, chart, orb);
+  const natalSummary = buildNatalSummary(chart);
+  const focusContext = buildFocusContext();
+  const dateLabel = now.toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+  const activeHouse = determineActiveHouse(transitLons, chart, orb);
+  const activeAreaInfo = HOUSE_EMOJI_LABEL[activeHouse];
+  const activeAreaTask = `The active life area for today is: "${activeAreaInfo.label}" (natal house ${activeHouse}, themed around ${HOUSE_THEME[activeHouse]}). Write the "activeAreaText" field specifically about this life area — don't write about a different area.`;
+
+  const userContent = [
+    `Reader's name: ${STATE.profile.name || 'friend'}`,
+    `Today's date: ${dateLabel}`,
+    `\nNATAL CHART:\n${natalSummary}`,
+    `\n${transitSummary}`,
+    focusContext ? `\n${focusContext}` : '',
+    `\n${activeAreaTask}`,
+    `\n${DAILY_FORMAT_RULES}`
+  ].filter(Boolean).join('\n');
+
+  if(!aiConfigured()){
+    return {error:true, text: 'Add your Cloudflare Worker URL in AI_CONFIG.workerUrl (near the top of the script) to enable readings — see the deployment guide.'};
+  }
+
+  try{
+    const fullPrompt = VOICE_SYSTEM_PROMPT + '\n\n---\n\n' + userContent;
+    const raw = await callAI(fullPrompt, 'default');
+    const data = extractJSON(raw);
+    data.activeAreaEmoji = activeAreaInfo.emoji;
+    data.activeAreaLabel = activeAreaInfo.label;
+    return {error:false, data};
+  }catch(e){
+    return {error:true, text: 'Couldn\'t generate a reading right now (' + (e.message||'unknown error') + '). Try again in a moment.'};
+  }
+}
+
+const PEEK_FORMAT_RULES = `OUTPUT FORMAT: respond with ONLY a JSON object (no markdown fences, no commentary before or after). The app supplies all headers and emoji itself — your job is ONLY the text content of each field, in voice. Do NOT include emoji, markdown headers, or field labels inside the field text. You may use **bold** sparingly for emphasis.
+
+Return exactly this JSON shape:
+{
+  "vibe": "one short punchy sentence — the overall vibe for this preview window",
+  "text": "the main preview content — short, flowing, 2-4 sentences depending on how much detail fits a preview (not the full daily depth)",
+  "assignment": "one short sentence — a tiny, light thing to keep in mind or watch for (lighter touch than the full daily assignment)",
+  "quote": "one short closing line, no quotation marks needed, in the mantra style"
+}`;
+
+async function generatePeekReading(mode){
+  const chart = STATE.profile.chart;
+  const now = new Date();
+
+  let targetTime;
+  let modeInstructions = '';
+  if(mode==='tomorrow'){
+    const t = new Date(now.getTime()+24*3600*1000);
+    targetTime = Astronomy.MakeTime(t);
+    modeInstructions = 'Write a SHORT "peek at tomorrow" preview. Keep "text" to 3-5 sentences max, just the overall vibe and one thing to know.';
+  } else if(mode==='week'){
+    const t = new Date(now.getTime()+3*24*3600*1000);
+    targetTime = Astronomy.MakeTime(t);
+    modeInstructions = 'Write a SHORT "week ahead" preview. Keep "text" to 4-6 sentences, giving the general direction/theme of the week based on the slower-moving transits, not a day-by-day breakdown.';
+  } else {
+    const t = new Date(now.getTime()+15*24*3600*1000);
+    targetTime = Astronomy.MakeTime(t);
+    modeInstructions = 'Write a SHORT "month ahead" preview. Keep "text" to 4-6 sentences, the big-picture theme/direction for the coming month based on the slowest-moving transits.';
+  }
+
+  const transitLons = planetLongitudes(targetTime);
+  const orb = 5;
+  const transitSummary = buildTransitSummary(transitLons, chart, orb);
+  const natalSummary = buildNatalSummary(chart);
+  const focusContext = buildFocusContext();
+
+  const userContent = [
+    `Reader's name: ${STATE.profile.name || 'friend'}`,
+    `\nNATAL CHART:\n${natalSummary}`,
+    `\n${transitSummary}`,
+    focusContext ? `\n${focusContext}` : '',
+    `\nTASK: ${modeInstructions}`,
+    `\n${PEEK_FORMAT_RULES}`
+  ].filter(Boolean).join('\n');
+
+  if(!aiConfigured()){
+    return {error:true, text: 'Add your Cloudflare Worker URL in AI_CONFIG.workerUrl (near the top of the script) to enable readings — see the deployment guide.'};
+  }
+
+  try{
+    const fullPrompt = VOICE_SYSTEM_PROMPT + '\n\n---\n\n' + userContent;
+    const raw = await callAI(fullPrompt, 'default');
+    const data = extractJSON(raw);
+    return {error:false, data};
+  }catch(e){
+    return {error:true, text: 'Couldn\'t generate a reading right now (' + (e.message||'unknown error') + '). Try again in a moment.'};
+  }
+}
+
+const ORBIT_FORMAT_RULES = `OUTPUT FORMAT: respond with ONLY a JSON object (no markdown fences, no commentary before or after). Do NOT include emoji or markdown headers inside the field text — the app supplies those. You may use **bold** sparingly.
+
+Return exactly this JSON shape:
+{
+  "vibeSummary": "a short, punchy tagline (3-7 words) summing up today's vibe between them — like a mini headline, e.g. 'Say the quiet thing out loud' or 'Good day to just ask'",
+  "together": "1-2 sentences expanding on that tagline — how the reader's and their friend's energies are interacting today, the synastry/shared-transit insight, in voice",
+  "vibeCheck": "one short, fun, PRACTICAL piece of advice tied to that energy — a concrete suggestion for how to handle this specific relationship today, e.g. 'Good day to text, save the in-person hang for later in the week' or 'Great day to ask for that favor.' Keep it light and actionable, not vague."
+}`;
+
+async function generateFriendReading(friend){
+  if(!aiConfigured()) return {error:true, data:{together:'Add your Cloudflare Worker URL in AI_CONFIG.workerUrl to turn on vibe checks — see the deployment guide.', vibeCheck:''}};
+  const now = new Date();
+  const time = Astronomy.MakeTime(now);
+  const myChart = STATE.profile.chart;
+  const myName = STATE.profile.name || 'the reader';
+  const teaContext = friend.tea ? `\nContext the reader shared about what's currently going on with ${friend.name} — this may include several dated updates over time, read as a timeline (use it to make the reading more specific and fun; this is the reader's own note about their own relationship, so it's fair game): ${friend.tea}` : '';
+  const pronounLabel = friend.pronoun==='other' ? (friend.pronounOther||'') : friend.pronoun;
+  const pronounContext = pronounLabel ? `\n${friend.name}'s pronouns: ${pronounLabel} — use this pronoun when referring to them, don't guess.` : '';
+
+  let userContent;
+  if(friend.tier==='light'){
+    const sunSign = sunSignFromDate(friend.birthMonthDay);
+    const transitLons = planetLongitudes(time);
+    const todaySun = lonToSignPos(transitLons.Sun).sign;
+    const todayMoon = lonToSignPos(transitLons.Moon).sign;
+    userContent = [
+      `Reader's name: ${myName}, Sun sign: ${myChart.planets.Sun.sign}, Moon sign: ${myChart.planets.Moon.sign}`,
+      `Friend's name: ${friend.name} (relation: ${friend.relation}) — only their sun sign is known: ${sunSign}`,
+      pronounContext,
+      `Today's transiting Sun is in ${todaySun}, today's transiting Moon is in ${todayMoon}.`,
+      teaContext,
+      `\nTASK: This is a LIGHT, lower-precision take since only a birthday is known for the friend — keep it teasing/general rather than claiming precision. Write about "our vibe together" today, not just the friend's vibe alone.`,
+      `\n${ORBIT_FORMAT_RULES}`
+    ].filter(Boolean).join('\n');
+  } else {
+    let friendChart;
+    try{
+      friendChart = buildChart(friend.birthDate, friend.birthTime||'12:00', friend.lat, friend.lon, friend.utcOffset);
+    }catch(e){
+      return {error:true, data:{together:`Couldn't compute ${friend.name}'s chart.`, vibeCheck:''}};
+    }
+    const transitLons = planetLongitudes(time);
+
+    const synastry = findSynastryAspects(myChart, friendChart, 4).slice(0,6);
+    const synastryLines = synastry.length
+      ? synastry.map(s=>`Reader's ${s.a} ${s.aspect} ${friend.name}'s ${s.b} (orb ${s.orb.toFixed(1)}°)`).join('\n')
+      : 'No tight synastry aspects within orb — lean on today\'s shared transits instead.';
+
+    const myTransitHits = findAspects(transitLons, (()=>{const o={};for(const n of Object.keys(PLANET_BODIES))o[n]=myChart.planets[n];return o;})(), {Ascendant:myChart.asc, Midheaven:myChart.mc}, 3).slice(0,3);
+    const friendTransitHits = findAspects(transitLons, (()=>{const o={};for(const n of Object.keys(PLANET_BODIES))o[n]=friendChart.planets[n];return o;})(), {Ascendant:friendChart.asc, Midheaven:friendChart.mc}, 3).slice(0,3);
+
+    userContent = [
+      `Reader's name: ${myName}`,
+      `Friend's name: ${friend.name} (relation: ${friend.relation})`,
+      pronounContext,
+      `\nSYNASTRY — how their two natal charts relate to each other (a standing dynamic, not just today):\n${synastryLines}`,
+      `\nToday's transits touching the READER's chart:\n${myTransitHits.map(a=>`Transiting ${a.transit} ${a.aspect} reader's natal ${a.natal} (orb ${a.orb.toFixed(1)}°)`).join('\n') || 'nothing tight today'}`,
+      `\nToday's transits touching the FRIEND's chart:\n${friendTransitHits.map(a=>`Transiting ${a.transit} ${a.aspect} ${friend.name}'s natal ${a.natal} (orb ${a.orb.toFixed(1)}°)`).join('\n') || 'nothing tight today'}`,
+      teaContext,
+      `\nTASK: Frame "together" as how the reader's and their friend's energies interact right now, using the synastry and/or today's shared transits, whichever tells the more interesting story — and weave in the reader's context above if it's there. GENERAL/PLANETARY reasoning only where the friend's OWN unshared personal details would be involved — but the reader's own note about the relationship is fine to use freely.`,
+      `\n${ORBIT_FORMAT_RULES}`
+    ].filter(Boolean).join('\n');
+  }
+
+  try{
+    const fullPrompt = VOICE_SYSTEM_PROMPT + '\n\n---\n\n' + userContent;
+    const raw = await callAI(fullPrompt, 'quick');
+    const data = extractJSON(raw);
+    return {error:false, data};
+  }catch(e){
+    return {error:true, data:{together:`Couldn't get ${friend.name}'s vibe right now.`, vibeCheck:''}};
+  }
+}
+
+/* ---------------- MARKDOWN-LITE RENDER ---------------- */
+
+const HEADER_EMOJIS = ['🌙','✨','❤️','🔮','🏔️','🌟','💫','☾','✦','🧭','💌','🎯','🪐'];
+
+// Guarantees readable paragraph breaks no matter how the raw AI text is formatted —
+// forces a break before any section-emoji header, and splits any run-on paragraph
+// into shorter chunks so nothing renders as one dense block.
+function autoFormat(raw){
+  let text = raw.replace(/\r\n/g, '\n');
+
+  // Force a paragraph break before any section emoji, even if it landed mid-text
+  for(const e of HEADER_EMOJIS){
+    text = text.split(e).join('\n\n' + e);
+  }
+  // Force a break before Morning/Midday/Evening sub-labels too, bold or not
+  text = text.replace(/\s*(\*\*)?(Morning|Midday|Evening)(:)?(\*\*)?\s*/g, (m)=>'\n\n'+m.trim()+' ');
+  text = text.replace(/\n{3,}/g, '\n\n');
+
+  let blocks = text.split(/\n\n+/).map(b=>b.trim()).filter(Boolean);
+
+  const finalBlocks = [];
+  for(const block of blocks){
+    const isHeaderish = HEADER_EMOJIS.some(e=>block.startsWith(e)) && block.length < 70;
+    if(isHeaderish || block.length <= 280){
+      finalBlocks.push(block);
+      continue;
+    }
+    // Break an overly long paragraph into shorter, more scannable chunks
+    const sentences = block.match(/[^.!?]+[.!?]+(\s+|$)/g) || [block];
+    let chunk = '';
+    for(const s of sentences){
+      if((chunk + s).length > 220 && chunk){
+        finalBlocks.push(chunk.trim());
+        chunk = s;
+      } else {
+        chunk += s;
+      }
+    }
+    if(chunk.trim()) finalBlocks.push(chunk.trim());
+  }
+  return finalBlocks.join('\n\n');
+}
+
+/* Fixed, app-controlled rendering for the daily reading — headers are never
+   left up to the AI's formatting, so they're always Montserrat, same size,
+   same weight, own line, every single time. */
+function mdInline(text){
+  return esc(text||'').replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+}
+function sectionHeaderHTML(label){
+  return `<div class="section-header">${label}</div>`;
+}
+function renderDailyHTML(data){
+  let out = '';
+  out += sectionHeaderHTML('✨ The Vibe');
+  out += `<p>${mdInline(data.vibe)}</p>`;
+  out += sectionHeaderHTML('💭 Translation');
+  out += `<p>${mdInline(data.translation)}</p>`;
+  out += sectionHeaderHTML('🌙 The Day\'s Rhythm');
+  out += `<p><strong>Morning:</strong> ${mdInline(data.morning)}</p>`;
+  out += `<p><strong>Midday:</strong> ${mdInline(data.midday)}</p>`;
+  out += `<p><strong>Evening:</strong> ${mdInline(data.evening)}</p>`;
+  out += sectionHeaderHTML('🧭 What Today Is Asking Of You');
+  out += `<p>${mdInline(data.asking)}</p>`;
+  out += sectionHeaderHTML(`${esc(data.activeAreaEmoji)} ${esc(data.activeAreaLabel)}`);
+  out += `<p>${mdInline(data.activeAreaText)}</p>`;
+  out += sectionHeaderHTML('🔮 Tiny Cosmic Assignment');
+  out += `<p>${mdInline(data.assignment)}</p>`;
+  out += `<div class="mantra"><strong>${mdInline(data.mantra)}</strong></div>`;
+  return out;
+}
+
+function renderPeekHTML(data){
+  let out = '';
+  out += sectionHeaderHTML('✨ The Vibe');
+  out += `<p>${mdInline(data.vibe)}</p>`;
+  out += `<p>${mdInline(data.text)}</p>`;
+  out += sectionHeaderHTML('🔮 Tiny Cosmic Assignment');
+  out += `<p>${mdInline(data.assignment)}</p>`;
+  if(data.quote) out += `<div class="mantra"><strong>${mdInline(data.quote)}</strong></div>`;
+  return out;
+}
+
+/* ================= UI RENDERING ================= */
+
+const app = document.getElementById('app');
+const tabbar = document.getElementById('tabbar');
+const modalRoot = document.getElementById('modal-root');
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function headerHTML(title){
+  return `<div class="top-header">
+    <div class="brand"><span class="brand-mark">☕</span><span class="brand-name">${title}</span></div>
+  </div>`;
+}
+
+function render(){
+  if(!STATE.profile){
+    tabbar.style.display = 'none';
+    renderOnboarding();
+    return;
+  }
+  tabbar.style.display = 'flex';
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', t.dataset.tab===STATE.tab));
+  if(STATE.tab==='today') renderToday();
+  else if(STATE.tab==='peek') renderPeek();
+  else if(STATE.tab==='orbit') renderOrbit();
+  else if(STATE.tab==='settings') renderSettings();
+}
+
+/* ---------- ONBOARDING ---------- */
+
+let onboardState = {step:1, name:'', birthDate:'', birthTime:'', cityName:'', lat:'', lon:'', utcOffset:'', areas:[], notes:''};
+
+const FOCUS_AREAS = ['Love & dating','Career & work','Friendships','Family','Money','Health & body','Creativity','Big life decisions'];
+
+function renderOnboarding(){
+  app.innerHTML = `
+    <div class="wrap" style="padding-top:40px;">
+      <div style="text-align:center;margin-bottom:26px;">
+        <div style="font-size:38px;margin-bottom:6px;">☕✨</div>
+        <h1 style="font-size:26px;">Cosmic Tea</h1>
+        <p class="muted">Real astrology. All the tea.</p>
+        ${onboardState.step===1 ? `<button class="btn-ghost" style="margin-top:4px;" onclick="openOnboardingRestoreModal()">Already used Cosmic Tea before? Restore from backup</button>` : ''}
+      </div>
+      <div class="progress-dots">
+        ${[1,2,3].map(n=>`<div class="dot ${onboardState.step===n?'active':''}"></div>`).join('')}
+      </div>
+
+      <div class="onboard-step ${onboardState.step===1?'active':''}" id="ob-step-1">
+        <div class="card">
+          <h3>First, you</h3>
+          <label>Your name</label>
+          <input id="ob-name" type="text" placeholder="What should we call you?" value="${esc(onboardState.name)}">
+          <label>Birth date</label>
+          <input id="ob-date" type="date" value="${onboardState.birthDate}">
+          <label>Birth time (as exact as you know it)</label>
+          <input id="ob-time" type="time" value="${onboardState.birthTime}">
+          <div class="hint">Exact time matters — it changes your rising sign and houses. Use your best guess if you're not sure; you can edit this later.</div>
+          ${locationFieldsHTML('ob', {cityName:onboardState.cityName, lat:onboardState.lat, lon:onboardState.lon, utc:onboardState.utcOffset})}
+          <div id="ob-step1-error" class="hint" style="display:none;color:var(--rose);margin-top:8px;"></div>
+          <button class="btn btn-block" style="margin-top:16px;" onclick="obNext1()">Continue</button>
+        </div>
+      </div>
+
+      <div class="onboard-step ${onboardState.step===2?'active':''}" id="ob-step-2">
+        <div class="card">
+          <h3>What's on your mind lately?</h3>
+          <p class="faint">This helps your readings feel like they're actually about your life. Pick a few, totally optional.</p>
+          <div class="pill-row" id="ob-areas">
+            ${FOCUS_AREAS.map(a=>`<div class="pill ${onboardState.areas.includes(a)?'active':''}" onclick="toggleObArea('${esc(a)}')">${a}</div>`).join('')}
+            ${onboardState.areas.filter(a=>!FOCUS_AREAS.includes(a)).map(a=>`<div class="pill active" onclick="toggleObArea('${esc(a)}')">${esc(a)}</div>`).join('')}
+            <div class="pill" id="ob-other-pill" onclick="showOtherFocusInput('ob')">+ Other</div>
+          </div>
+          <div id="ob-other-input-row" style="display:none;margin-bottom:10px;">
+            <input id="ob-other-input" type="text" placeholder="Type your own">
+            <button class="btn-outline" style="margin-top:8px;" onclick="addOtherFocusArea('ob')">Add</button>
+          </div>
+          <label>Anything else going on? (optional)</label>
+          <textarea id="ob-notes" placeholder="e.g. deciding whether to take a new job, navigating a situationship...">${esc(onboardState.notes)}</textarea>
+          <button class="btn btn-block" style="margin-top:16px;" onclick="obNext2()">Continue</button>
+          <button class="btn-ghost btn-block" style="text-align:center;margin-top:8px;" onclick="obSkip2()">Skip for now</button>
+          <button class="btn-ghost btn-block" style="text-align:center;margin-top:4px;" onclick="obBack(1)">← Back</button>
+        </div>
+      </div>
+
+      <div class="onboard-step ${onboardState.step===3?'active':''}" id="ob-step-3">
+        <div class="card">
+          <h3>Your Orbit</h3>
+          <p class="faint">Add anyone you want a daily "our vibe together" check-in with — a crush, partner, bestie. You can always add more later in Settings.</p>
+          <div id="ob-orbit-list"></div>
+          <button class="btn-outline btn-block" style="margin-top:8px;" onclick="openFriendModal()">+ Add someone</button>
+          <button class="btn btn-block" style="margin-top:16px;" onclick="finishOnboarding()">Enter Cosmic Tea ☕</button>
+          <button class="btn-ghost btn-block" style="text-align:center;margin-top:8px;" onclick="obBack(2)">← Back</button>
+        </div>
+      </div>
+    </div>
+  `;
+  if(onboardState.step===3) renderObOrbitList();
+}
+
+function obBack(toStep){
+  onboardState.step = toStep;
+  renderOnboarding();
+}
+
+function renderObOrbitList(){
+  const el = document.getElementById('ob-orbit-list');
+  if(!el) return;
+  if(STATE.friends.length===0){ el.innerHTML = `<p class="faint">No one added yet.</p>`; return; }
+  el.innerHTML = STATE.friends.map(f=>`
+    <div class="person-row">
+      <div><span class="person-name">${esc(f.name)}</span><span class="tag">${esc(f.relation)}</span></div>
+      <button class="icon-action" onclick="removeFriend('${f.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function toggleObArea(a){
+  const i = onboardState.areas.indexOf(a);
+  if(i>-1) onboardState.areas.splice(i,1); else onboardState.areas.push(a);
+  // Preserve whatever's typed in notes (not yet on "Continue") since a
+  // removed custom pill needs a full re-render to disappear cleanly.
+  const notesEl = document.getElementById('ob-notes');
+  if(notesEl) onboardState.notes = notesEl.value;
+  renderOnboarding();
+}
+
+function obNext1(){
+  const name = document.getElementById('ob-name').value.trim();
+  const date = document.getElementById('ob-date').value;
+  const time = document.getElementById('ob-time').value;
+  const loc = readLocationFields('ob');
+  const errEl = document.getElementById('ob-step1-error');
+
+  if(!name || !date || !time || !loc.cityName){
+    if(errEl){ errEl.textContent = 'Fill in your name, birth date, time, and city so I can calculate your real chart.'; errEl.style.display='block'; }
+    return;
+  }
+  if(isNaN(loc.lat) || isNaN(loc.lon) || loc.utc===''){
+    const details = document.getElementById('ob-advanced-details');
+    if(details) details.open = true;
+    if(errEl){ errEl.textContent = 'We couldn\'t auto-fill coordinates for that city — tap "Advanced" above and fill in latitude, longitude and UTC offset (or use the map link to look them up).'; errEl.style.display='block'; errEl.scrollIntoView({behavior:'smooth', block:'center'}); }
+    return;
+  }
+  if(errEl) errEl.style.display='none';
+  onboardState = {...onboardState, name, birthDate:date, birthTime:time, cityName:loc.cityName, lat:loc.lat, lon:loc.lon, utcOffset:Number(loc.utc), step:2};
+  renderOnboarding();
+}
+
+function obNext2(){
+  onboardState.notes = document.getElementById('ob-notes').value.trim();
+  onboardState.step = 3;
+  renderOnboarding();
+}
+function obSkip2(){
+  onboardState.step = 3;
+  renderOnboarding();
+}
+
+function finishOnboarding(){
+  let chart;
+  try{
+    chart = buildChart(onboardState.birthDate, onboardState.birthTime, onboardState.lat, onboardState.lon, onboardState.utcOffset);
+  }catch(e){
+    alert('Something went wrong calculating your chart. Double check your birth info.');
+    return;
+  }
+  STATE.profile = {
+    name: onboardState.name, birthDate: onboardState.birthDate, birthTime: onboardState.birthTime,
+    cityName: onboardState.cityName, lat: onboardState.lat, lon: onboardState.lon, utcOffset: onboardState.utcOffset, chart
+  };
+  STATE.focus = {areas: onboardState.areas, notes: onboardState.notes};
+  persist('profile'); persist('focus');
+  STATE.tab = 'today';
+  render();
+}
+
+function finalizePerson(p){
+  const person = {
+    id: 'p_' + Math.random().toString(36).slice(2,9),
+    name: p.name, relation: p.relation, tier: p.tier,
+    birthMonthDay: p.birthMonthDay || null,
+    birthDate: p.birthDate || null, birthTime: p.birthTime || null, cityName: p.cityName || null,
+    lat: p.lat || null, lon: p.lon || null, utcOffset: p.utcOffset!=null ? p.utcOffset : null
+  };
+  if(person.tier==='full' && person.birthDate && person.birthTime && person.lat!=null){
+    try{ person.chart = buildChart(person.birthDate, person.birthTime, person.lat, person.lon, person.utcOffset); }catch(e){}
+  }
+  return person;
+}
+
+/* ---------- PERSON MODAL (add crush/friend/etc, light or full) ---------- */
+
+const RELATIONS = ['Crush','Partner','Spouse','Bestie','Friend','Coworker','Family','Pet','Situationship','Other'];
+
+function openPersonModal(existingId, isOnboarding){
+  const editing = existingId ? (isOnboarding ? null : STATE.people.find(p=>p.id===existingId)) : null;
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <h3>${editing?'Edit person':'Add a person'}</h3>
+        <label>Name</label>
+        <input id="pm-name" type="text" placeholder="Their name" value="${esc(editing?.name||'')}">
+        <label>Relationship</label>
+        <select id="pm-relation">${RELATIONS.map(r=>`<option ${editing?.relation===r?'selected':''}>${r}</option>`).join('')}</select>
+
+        <label>How well do you know their birth info?</label>
+        <div class="pill-row">
+          <div class="pill ${(!editing||editing.tier==='light')?'active':''}" id="pm-tier-light" onclick="setPmTier('light')">Just their birthday</div>
+          <div class="pill ${editing?.tier==='full'?'active':''}" id="pm-tier-full" onclick="setPmTier('full')">Exact date, time & place</div>
+        </div>
+
+        <div id="pm-light-fields" style="${editing?.tier==='full'?'display:none;':''}">
+          <label>Birthday (month & day)</label>
+          <input id="pm-monthday" type="text" placeholder="MM-DD, e.g. 08-14" value="${editing?.birthMonthDay||''}">
+        </div>
+        <div id="pm-full-fields" style="${(!editing||editing.tier!=='full')?'display:none;':''}">
+          <label>Birth date</label>
+          <input id="pm-date" type="date" value="${editing?.birthDate||''}">
+          <label>Birth time</label>
+          <input id="pm-time" type="time" value="${editing?.birthTime||''}">
+          ${locationFieldsHTML('pm', {cityName:editing?.cityName, lat:editing?.lat, lon:editing?.lon, utc:editing?.utcOffset})}
+        </div>
+
+        <button class="btn btn-block" style="margin-top:18px;" onclick="savePersonModal('${editing?editing.id:''}', ${!!isOnboarding})">Save</button>
+        ${editing?`<button class="btn-ghost btn-danger btn-block" style="text-align:center;margin-top:10px;" onclick="deletePerson('${editing.id}')">Remove person</button>`:''}
+      </div>
+    </div>
+  `;
+}
+function setPmTier(tier){
+  document.getElementById('pm-tier-light').classList.toggle('active', tier==='light');
+  document.getElementById('pm-tier-full').classList.toggle('active', tier==='full');
+  document.getElementById('pm-light-fields').style.display = tier==='light' ? 'block':'none';
+  document.getElementById('pm-full-fields').style.display = tier==='full' ? 'block':'none';
+  modalRoot.dataset.tier = tier;
+}
+function closeModal(){ modalRoot.innerHTML = ''; }
+
+function savePersonModal(existingId, isOnboarding){
+  const name = document.getElementById('pm-name').value.trim();
+  const relation = document.getElementById('pm-relation').value;
+  const tier = modalRoot.dataset.tier || (document.getElementById('pm-light-fields').style.display!=='none' ? 'light':'full');
+  if(!name){ alert('Give them a name first.'); return; }
+
+  let person = {name, relation, tier};
+  if(tier==='light'){
+    const md = document.getElementById('pm-monthday').value.trim();
+    if(!md){ alert('Add at least their birthday (month-day).'); return; }
+    person.birthMonthDay = md;
+  } else {
+    const date = document.getElementById('pm-date').value;
+    const time = document.getElementById('pm-time').value;
+    const loc = readLocationFields('pm');
+    const {cityName, lat, lon, utc} = loc;
+    if(!date || !time || !cityName || isNaN(lat) || isNaN(lon) || utc===''){
+      alert('Fill in their full birth date, time, city, and coordinates — or switch to "just their birthday."');
+      return;
+    }
+    person.birthDate = date; person.birthTime = time; person.cityName = cityName; person.lat = lat; person.lon = lon; person.utcOffset = Number(utc);
+  }
+
+  if(isOnboarding){
+    if(onboardState._tempPeople===undefined) onboardState._tempPeople = [];
+    onboardState._tempPeople.push(person);
+    closeModal();
+    renderOnboarding();
+    return;
+  }
+
+  const finalized = finalizePerson(person);
+  if(existingId){
+    const idx = STATE.people.findIndex(p=>p.id===existingId);
+    finalized.id = existingId;
+    STATE.people[idx] = finalized;
+  } else {
+    STATE.people.push(finalized);
+  }
+  persist('people');
+  closeModal();
+  render();
+}
+function deletePerson(id){
+  STATE.people = STATE.people.filter(p=>p.id!==id);
+  persist('people');
+  closeModal();
+  render();
+}
+
+/* ---------- TODAY TAB ---------- */
+
+function todayKey(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
+async function renderToday(){
+  const key = todayKey();
+  const raw = STATE.cache.dailyData && STATE.cache.dailyDate===key ? STATE.cache.dailyData : null;
+  const cached = (raw && typeof raw === 'object' && raw.vibe) ? raw : null;
+
+  app.innerHTML = `
+    <div class="wrap">
+      ${headerHTML('Cosmic Tea')}
+      <p class="muted" style="margin-top:-8px;">Your current astro tea, brewed from your real chart.</p>
+      <p class="faint">${new Date().toLocaleDateString('en-US',{weekday:'long', month:'long', day:'numeric'})}</p>
+      <div class="card reading" id="today-content">
+        ${cached ? renderDailyHTML(cached) : `<div class="loading-wrap"><div class="spinner"></div><div class="loading-msg">Reading your chart against today's sky...</div></div>`}
+      </div>
+      ${cached ? `<button class="btn-ghost" onclick="regenerateToday()">↻ Regenerate today's tea</button>` : ''}
+    </div>
+  `;
+
+  if(!cached){
+    const result = await generateDailyReading();
+    if(!result.error){
+      STATE.cache.dailyData = result.data;
+      STATE.cache.dailyDate = key;
+      persist('cache');
+    }
+    const contentEl = document.getElementById('today-content');
+    if(contentEl) contentEl.innerHTML = result.error
+      ? `<p class="muted">${esc(result.text)}</p>`
+      : renderDailyHTML(result.data);
+    if(STATE.tab==='today'){
+      const btnHolder = document.querySelector('.wrap');
+      if(!result.error && !document.querySelector('.regen-btn')){
+        const btn = document.createElement('button');
+        btn.className = 'btn-ghost regen-btn';
+        btn.textContent = '↻ Regenerate today\'s tea';
+        btn.onclick = regenerateToday;
+        btnHolder.appendChild(btn);
+      }
+    }
+  }
+}
+
+async function regenerateToday(){
+  STATE.cache.dailyData = null;
+  persist('cache');
+  render();
+}
+
+/* ---------- PEEK TAB ---------- */
+
+async function renderPeek(){
+  const mode = STATE.peekMode;
+  const labels = {tomorrow:'Tomorrow', week:'This Week', month:'This Month'};
+  app.innerHTML = `
+    <div class="wrap">
+      ${headerHTML('Cosmic Tea')}
+      <p class="muted" style="margin-top:-8px;">A quick look at what's brewing next.</p>
+      <div class="peek-tabs">
+        ${Object.entries(labels).map(([k,l])=>`<div class="peek-tab ${mode===k?'active':''}" onclick="switchPeek('${k}')">${l}</div>`).join('')}
+      </div>
+      <div class="card reading" id="peek-content">
+        <div class="loading-wrap"><div class="spinner"></div><div class="loading-msg">Peeking ahead...</div></div>
+      </div>
+    </div>
+  `;
+  const cacheKey = 'peekv2_'+mode+'_'+todayKey();
+  const cached = STATE.cache[cacheKey];
+  const contentEl = document.getElementById('peek-content');
+  if(cached && typeof cached === 'object' && cached.vibe){ contentEl.innerHTML = renderPeekHTML(cached); return; }
+
+  const result = await generatePeekReading(mode);
+  if(!result.error){ STATE.cache[cacheKey] = result.data; persist('cache'); }
+  if(document.getElementById('peek-content')){
+    document.getElementById('peek-content').innerHTML = result.error
+      ? `<p class="muted">${esc(result.text)}</p>`
+      : renderPeekHTML(result.data);
+  }
+}
+function switchPeek(mode){ STATE.peekMode = mode; renderPeek(); }
+
+/* ---------- ORBIT TAB (friends) ---------- */
+
+async function renderOrbit(){
+  app.innerHTML = `
+    <div class="wrap">
+      ${headerHTML('Your Orbit')}
+      <p class="muted">The tea is piping hot on everyone in your orbit. ☕</p>
+      <div id="orbit-list"></div>
+      ${STATE.friends.length>0 ? `<button class="btn-ghost btn-block" style="text-align:center;margin-top:6px;" onclick="STATE.tab='settings';render();">Manage who's in your orbit →</button>` : ''}
+    </div>
+  `;
+  renderOrbitList();
+}
+
+function openFriendModal(existingId){
+  const editing = existingId ? STATE.friends.find(f=>f.id===existingId) : null;
+  const tier = editing?.tier || 'light';
+  const pronoun = editing?.pronoun || '';
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <h3>${editing?`Update on ${esc(editing.name)}`:'Okay, who are we talking about? 👀'}</h3>
+        <label>Their name</label>
+        <input id="fm-name" type="text" placeholder="First name is fine" value="${esc(editing?.name||'')}">
+        <label>What are they to you?</label>
+        <select id="fm-relation">${RELATIONS.filter(r=>r!=='Pet').map(r=>`<option ${editing?.relation===r?'selected':''}>${r}</option>`).join('')}</select>
+
+        <label>Pronouns</label>
+        <div class="pill-row">
+          <div class="pill ${pronoun==='she'?'active':''}" onclick="setFmPronoun('she', this)">She/her</div>
+          <div class="pill ${pronoun==='he'?'active':''}" onclick="setFmPronoun('he', this)">He/him</div>
+          <div class="pill ${pronoun==='they'?'active':''}" onclick="setFmPronoun('they', this)">They/them</div>
+          <div class="pill ${pronoun==='other'?'active':''}" onclick="setFmPronoun('other', this)">Other</div>
+        </div>
+        <input id="fm-pronoun-other" type="text" placeholder="Type their pronoun" value="${esc(editing?.pronounOther||'')}" style="${pronoun==='other'?'':'display:none;'}margin-top:6px;">
+
+        <label>How well do you know their birthday?</label>
+        <div class="pill-row">
+          <div class="pill ${tier==='light'?'active':''}" id="fm-tier-light" onclick="setFmTier('light')">Just the day</div>
+          <div class="pill ${tier==='full'?'active':''}" id="fm-tier-full" onclick="setFmTier('full')">Exact date, time & place</div>
+        </div>
+
+        <div id="fm-light-fields" style="${tier==='full'?'display:none;':''}">
+          <label>Birthday (month & day)</label>
+          <input id="fm-monthday" type="text" placeholder="e.g. 8/19" value="${editing?.birthMonthDay||''}">
+          <div class="hint">Totally fine if that's all you know — you'll get a lighter, sun-sign vibe check for them.</div>
+        </div>
+        <div id="fm-full-fields" style="${tier==='light'?'display:none;':''}">
+          <label>Birth date</label>
+          <input id="fm-date" type="date" value="${editing?.birthDate||''}">
+          <label>Birth time</label>
+          <input id="fm-time" type="time" value="${editing?.birthTime||''}">
+          ${locationFieldsHTML('fm', {cityName:editing?.cityName, lat:editing?.lat, lon:editing?.lon, utc:editing?.utcOffset})}
+        </div>
+
+        <label>🍵 Okay, now spill — what's going on?</label>
+        ${editing?.tea ? `<div class="share-code-box" style="font-family:var(--font-body);font-size:13px;white-space:pre-wrap;">${esc(editing.tea)}</div>` : ''}
+        <textarea id="fm-tea" placeholder="${editing?.tea ? 'Anything new to add?' : 'What is the situation? Any context makes the reading way more fun.'}"></textarea>
+        <div class="hint">The more tea you spill, the juicier the reading — totally optional though. Only you ever see this.${editing?.tea ? ' This adds to what you\'ve already told us, so there\'s a bit of a timeline.' : ''}</div>
+
+        <div id="fm-error" class="hint" style="display:none;color:var(--rose);margin-top:10px;"></div>
+        <button class="btn btn-block" style="margin-top:12px;" onclick="saveFriendModal('${editing?editing.id:''}')">${editing?'Save changes':'Add them to your orbit'}</button>
+        ${editing?`<button class="btn-ghost btn-danger btn-block" style="text-align:center;margin-top:10px;" onclick="removeFriend('${editing.id}')">Remove from orbit</button>`:''}
+      </div>
+    </div>
+  `;
+  modalRoot.dataset.fmTier = tier;
+  modalRoot.dataset.fmPronoun = pronoun;
+}
+
+function setFmPronoun(p, el){
+  el.parentElement.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('fm-pronoun-other').style.display = p==='other' ? 'block':'none';
+  modalRoot.dataset.fmPronoun = p;
+}
+
+
+function setFmTier(tier){
+  document.getElementById('fm-tier-light').classList.toggle('active', tier==='light');
+  document.getElementById('fm-tier-full').classList.toggle('active', tier==='full');
+  document.getElementById('fm-light-fields').style.display = tier==='light' ? 'block':'none';
+  document.getElementById('fm-full-fields').style.display = tier==='full' ? 'block':'none';
+  modalRoot.dataset.fmTier = tier;
+}
+
+function dateLabel(){
+  return new Date().toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+function appendTea(existingTea, newEntry){
+  if(!newEntry) return existingTea || '';
+  const stamped = `[${dateLabel()}] ${newEntry}`;
+  return existingTea ? existingTea + '\n\n' + stamped : stamped;
+}
+
+function showModalError(msg){
+  const el = modalRoot.querySelector('[id$="-error"]');
+  if(el){ el.textContent = msg; el.style.display = 'block'; el.scrollIntoView({behavior:'smooth', block:'center'}); }
+  else alert(msg);
+}
+
+function saveFriendModal(existingId){
+  const name = document.getElementById('fm-name').value.trim();
+  const relation = document.getElementById('fm-relation').value;
+  const tier = modalRoot.dataset.fmTier || 'light';
+  const pronoun = modalRoot.dataset.fmPronoun || '';
+  const pronounOther = pronoun==='other' ? document.getElementById('fm-pronoun-other').value.trim() : '';
+  const newTeaEntry = document.getElementById('fm-tea').value.trim();
+  if(!name){ showModalError('Give them a name first.'); return; }
+
+  const existing = existingId ? STATE.friends.find(f=>f.id===existingId) : null;
+  const tea = appendTea(existing?.tea, newTeaEntry);
+  const teaUpdatedAt = newTeaEntry ? Date.now() : (existing?.teaUpdatedAt || null);
+
+  let friend = {id: existingId || ('f_' + Math.random().toString(36).slice(2,9)), name, relation, pronoun, pronounOther, tier, tea, teaUpdatedAt};
+  if(tier==='light'){
+    const md = document.getElementById('fm-monthday').value.trim();
+    if(!md){ showModalError('Add at least their birthday (month-day).'); return; }
+    friend.birthMonthDay = md;
+  } else {
+    const date = document.getElementById('fm-date').value;
+    const time = document.getElementById('fm-time').value;
+    const loc = readLocationFields('fm');
+    if(!date || !time || !loc.cityName){
+      showModalError('Fill in their birth date, time, and city — or switch to "just the day."');
+      return;
+    }
+    if(isNaN(loc.lat) || isNaN(loc.lon) || loc.utc===''){
+      const details = document.getElementById('fm-advanced-details');
+      if(details) details.open = true;
+      showModalError('We couldn\'t auto-fill coordinates for that city — tap "Advanced" above and fill in latitude, longitude and UTC offset (or use the map link to look them up).');
+      return;
+    }
+    friend.birthDate = date; friend.birthTime = time; friend.cityName = loc.cityName;
+    friend.lat = loc.lat; friend.lon = loc.lon; friend.utcOffset = Number(loc.utc);
+  }
+
+  if(existingId){
+    const idx = STATE.friends.findIndex(f=>f.id===existingId);
+    if(idx>-1) STATE.friends[idx] = friend;
+  } else {
+    STATE.friends.push(friend);
+  }
+  persist('friends');
+  closeModal();
+  render();
+}
+
+async function renderOrbitList(){
+  const el = document.getElementById('orbit-list');
+  if(STATE.friends.length===0){
+    el.innerHTML = `<div class="empty-state">No one in your orbit yet.<br>Add someone from Settings to get started.</div>
+      <button class="btn btn-block" onclick="STATE.tab='settings';render();">Go to Settings</button>`;
+    return;
+  }
+  el.innerHTML = STATE.friends.map(f=>`
+    <div class="card reading" id="friend-${f.id}">
+      <div class="person-row" style="border-bottom:none;padding-top:0;margin-bottom:4px;">
+        <div><span class="person-name">${esc(f.name)}</span><span class="tag">${esc(f.relation)}</span></div>
+      </div>
+      <div id="friend-content-${f.id}">
+        <div class="loading-wrap" style="padding:16px 0;"><div class="spinner"></div><div class="loading-msg">Reading your vibe together...</div></div>
+      </div>
+      ${teaPromptHTML(f)}
+    </div>
+  `).join('');
+
+  for(const f of STATE.friends){
+    const result = await generateFriendReading(f);
+    const contentEl = document.getElementById('friend-content-'+f.id);
+    if(contentEl) contentEl.innerHTML = renderOrbitCardHTML(f, result.data);
+  }
+}
+
+function teaPromptHTML(f){
+  const daysSince = f.teaUpdatedAt ? Math.floor((Date.now()-f.teaUpdatedAt)/86400000) : null;
+  let message, label;
+  if(!f.tea){
+    message = `🍵 Got tea on ${esc(f.name)}? Add it for juicier readings.`;
+    label = 'Add the tea';
+  } else if(daysSince!==null && daysSince>=10){
+    message = `🍵 That update was ${daysSince} days ago — still the tea?`;
+    label = 'Update the tea';
+  } else {
+    message = null;
+    label = '🍵 Update the tea';
+  }
+  return `
+    <div class="divider" style="margin:14px 0 10px;"></div>
+    ${message ? `<p class="faint" style="margin-bottom:8px;">${message}</p>` : ''}
+    <button class="btn-outline" style="font-size:13px;padding:9px 16px;" onclick="openTeaQuickModal('${f.id}')">${label}</button>
+  `;
+}
+
+function openTeaQuickModal(friendId){
+  const f = STATE.friends.find(x=>x.id===friendId);
+  if(!f) return;
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <h3>🍵 What's new with ${esc(f.name)}?</h3>
+        ${f.tea ? `<p class="faint" style="margin-bottom:6px;">Here's what you've told us so far:</p>
+        <div class="share-code-box" style="font-family:var(--font-body);font-size:13px;white-space:pre-wrap;">${esc(f.tea)}</div>` : ''}
+        <textarea id="tea-quick-input" placeholder="e.g. still hasn't texted back, getting suspicious..." style="margin-top:${f.tea?'10px':'2px'};"></textarea>
+        <button class="btn btn-block" style="margin-top:14px;" onclick="saveTeaQuickModal('${f.id}')">Add to the tea</button>
+      </div>
+    </div>
+  `;
+}
+
+function saveTeaQuickModal(friendId){
+  const idx = STATE.friends.findIndex(f=>f.id===friendId);
+  if(idx===-1) return;
+  const newEntry = document.getElementById('tea-quick-input').value.trim();
+  if(!newEntry){ closeModal(); return; }
+  STATE.friends[idx].tea = appendTea(STATE.friends[idx].tea, newEntry);
+  STATE.friends[idx].teaUpdatedAt = Date.now();
+  persist('friends');
+  closeModal();
+  renderOrbit();
+}
+
+function renderOrbitCardHTML(friend, data){
+  let out = '';
+  const headline = data.vibeSummary ? `💫 Our Vibe Today: ${esc(data.vibeSummary)}` : '💫 Our Vibe Today';
+  out += sectionHeaderHTML(headline);
+  out += `<p>${mdInline(data.together)}</p>`;
+  if(data.vibeCheck){
+    out += sectionHeaderHTML('🎯 Vibe Check');
+    out += `<p>${mdInline(data.vibeCheck)}</p>`;
+  }
+  return out;
+}
+
+function removeFriend(id){
+  STATE.friends = STATE.friends.filter(f=>f.id!==id);
+  persist('friends');
+  render();
+}
+
+/* ---------- SETTINGS TAB ---------- */
+
+function renderSettings(){
+  const p = STATE.profile;
+  app.innerHTML = `
+    <div class="wrap">
+      ${headerHTML('Settings')}
+      <p class="muted" style="margin-top:-8px;">Your chart, your focus, and who's in your orbit.</p>
+
+      <div class="card">
+        <div class="section-title">Your chart</div>
+        <p><strong>${esc(p.name)}</strong></p>
+        <p class="faint">${p.birthDate} at ${p.birthTime}${p.cityName?' &middot; '+esc(p.cityName):''} &middot; UTC${p.utcOffset>=0?'+':''}${p.utcOffset}</p>
+        <p class="faint">Sun: ${p.chart.planets.Sun.sign} · Moon: ${p.chart.planets.Moon.sign} · Rising: ${p.chart.asc.sign}</p>
+        <button class="btn-outline" onclick="openEditProfile()">Edit my info</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">What you're focused on</div>
+        <div class="pill-row" id="settings-areas">
+          ${FOCUS_AREAS.map(a=>`<div class="pill ${STATE.focus.areas.includes(a)?'active':''}" onclick="toggleFocusArea('${esc(a)}')">${a}</div>`).join('')}
+          ${STATE.focus.areas.filter(a=>!FOCUS_AREAS.includes(a)).map(a=>`<div class="pill active" onclick="toggleFocusArea('${esc(a)}')">${esc(a)}</div>`).join('')}
+          <div class="pill" id="settings-other-pill" onclick="showOtherFocusInput('settings')">+ Other</div>
+        </div>
+        <div id="settings-other-input-row" style="display:none;margin-top:8px;">
+          <input id="settings-other-input" type="text" placeholder="Type your own">
+          <button class="btn-outline" style="margin-top:8px;" onclick="addOtherFocusArea('settings')">Add</button>
+        </div>
+        <textarea id="settings-notes" placeholder="Anything else going on?">${esc(STATE.focus.notes)}</textarea>
+        <button class="btn-outline" id="save-notes-btn" style="margin-top:8px;" onclick="saveFocusNotes()">Save</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Your Orbit</div>
+        <p class="faint">People whose vibe gets compared with yours each day, shown on the Orbit tab.</p>
+        <div id="settings-orbit-list"></div>
+        <button class="btn btn-block" style="margin-top:10px;" onclick="openFriendModal()">+ Add a friend</button>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Backup your data</div>
+        <p class="faint">Everything lives only on this device, so if it ever gets cleared (a browser reset, switching phones, force-closing in some setups), you'd lose your chart and orbit. Keep a backup code somewhere safe — Notes, an email to yourself — so you can restore in one paste.</p>
+        <button class="btn-outline btn-block" id="backup-copy-btn" onclick="copyBackupCode()">Copy my backup code</button>
+        <div id="backup-status" class="hint" style="display:none;"></div>
+        <div class="divider"></div>
+        <textarea id="restore-input" placeholder="Paste a backup code here to restore"></textarea>
+        <button class="btn-outline btn-block" id="restore-btn" style="margin-top:10px;" onclick="restoreFromBackupCode()">Restore from backup</button>
+        <div id="restore-status" class="hint" style="display:none;"></div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">About this app</div>
+        <p class="faint">Cosmic Tea reads today, ephemeral by design — nothing is saved beyond today's cache, and there's no account. Everything lives on this device.</p>
+        <p class="faint" style="margin-top:10px;">For entertainment purposes only. Cosmic Tea is built on real astrological calculations, but its readings aren't advice — medical, legal, financial, relationship, or otherwise. Have fun with it, don't make big decisions based on it.</p>
+      </div>
+    </div>
+  `;
+  renderSettingsOrbitList();
+}
+
+function copyBackupCode(){
+  const data = {profile: STATE.profile, focus: STATE.focus, friends: STATE.friends};
+  const code = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const status = document.getElementById('backup-status');
+  const showStatus = (msg)=>{ if(status){ status.textContent = msg; status.style.display = 'block'; } };
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(code).then(()=>{
+      showStatus('✓ Copied! Paste it somewhere safe — Notes, an email to yourself, anywhere findable.');
+    }).catch(()=>{
+      showStatus('Couldn\'t auto-copy — select and copy this manually:');
+      const box = document.createElement('div');
+      box.className = 'share-code-box';
+      box.textContent = code;
+      status.after(box);
+    });
+  } else {
+    showStatus('Select and copy this manually:');
+    const box = document.createElement('div');
+    box.className = 'share-code-box';
+    box.textContent = code;
+    status.after(box);
+  }
+}
+
+function parseBackupCode(raw){
+  try{
+    const data = JSON.parse(decodeURIComponent(escape(atob(raw.trim()))));
+    if(!data.profile) return null;
+    return data;
+  }catch(e){ return null; }
+}
+
+function applyBackup(data){
+  STATE.profile = data.profile;
+  STATE.focus = data.focus || {areas:[], notes:''};
+  STATE.friends = data.friends || [];
+  STATE.cache = {};
+  persist('profile'); persist('focus'); persist('friends'); persist('cache');
+  STATE.tab = 'today';
+  render();
+}
+
+function restoreFromBackupCode(){
+  const raw = document.getElementById('restore-input').value.trim();
+  const status = document.getElementById('restore-status');
+  const btn = document.getElementById('restore-btn');
+  const showStatus = (msg)=>{ if(status){ status.textContent = msg; status.style.display = 'block'; status.style.color = 'var(--rose)'; } };
+
+  if(!raw){ showStatus('Paste a backup code first.'); return; }
+  const data = parseBackupCode(raw);
+  if(!data){ showStatus('That code doesn\'t look right — make sure you copied the whole thing.'); return; }
+
+  if(btn.dataset.confirming !== 'true'){
+    btn.dataset.confirming = 'true';
+    btn.textContent = 'Tap again to confirm — this replaces what\'s here now';
+    showStatus('');
+    if(status) status.style.display = 'none';
+    setTimeout(()=>{ if(btn.dataset.confirming==='true'){ btn.dataset.confirming='false'; btn.textContent='Restore from backup'; } }, 6000);
+    return;
+  }
+
+  applyBackup(data);
+}
+
+function openOnboardingRestoreModal(){
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <h3>Restore from backup</h3>
+        <p class="faint">Paste the backup code you saved from Settings.</p>
+        <textarea id="ob-restore-input" placeholder="Paste your backup code here"></textarea>
+        <div id="ob-restore-status" class="hint" style="display:none;color:var(--rose);"></div>
+        <button class="btn btn-block" id="ob-restore-btn" style="margin-top:14px;" onclick="restoreFromOnboarding()">Restore</button>
+      </div>
+    </div>
+  `;
+}
+
+function restoreFromOnboarding(){
+  const raw = document.getElementById('ob-restore-input').value.trim();
+  const status = document.getElementById('ob-restore-status');
+  const showStatus = (msg)=>{ if(status){ status.textContent = msg; status.style.display = 'block'; } };
+  if(!raw){ showStatus('Paste a backup code first.'); return; }
+  const data = parseBackupCode(raw);
+  if(!data){ showStatus('That code doesn\'t look right — make sure you copied the whole thing.'); return; }
+  closeModal();
+  applyBackup(data);
+}
+
+function renderSettingsOrbitList(){
+  const el = document.getElementById('settings-orbit-list');
+  if(!el) return;
+  if(STATE.friends.length===0){ el.innerHTML = `<p class="faint">No one added yet.</p>`; return; }
+  el.innerHTML = STATE.friends.map(f=>`
+    <div class="person-row">
+      <div><span class="person-name">${esc(f.name)}</span><span class="tag">${esc(f.relation)}</span><span class="tag">${f.tier==='light'?'sun sign only':'full chart'}</span></div>
+      <button class="icon-action" onclick="openFriendModal('${f.id}')">Edit</button>
+    </div>
+  `).join('');
+}
+
+function renderSettingsPeopleList(){
+  const el = document.getElementById('settings-people-list');
+  if(!el) return;
+  if(STATE.people.length===0){ el.innerHTML = `<p class="faint">No one added yet.</p>`; return; }
+  el.innerHTML = STATE.people.map(p=>`
+    <div class="person-row">
+      <div><span class="person-name">${esc(p.name)}</span><span class="tag">${esc(p.relation)}</span><span class="tag">${p.tier==='full'?'full chart':'sun sign only'}</span></div>
+      <button class="icon-action" onclick="openPersonModal('${p.id}', false)">Edit</button>
+    </div>
+  `).join('');
+}
+
+function preserveNotesDraft(){
+  const el = document.getElementById('settings-notes');
+  if(el) STATE.focus.notes = el.value;
+}
+function toggleFocusArea(a){
+  preserveNotesDraft();
+  const i = STATE.focus.areas.indexOf(a);
+  if(i>-1) STATE.focus.areas.splice(i,1); else STATE.focus.areas.push(a);
+  persist('focus');
+  renderSettings();
+}
+function showOtherFocusInput(target){
+  const row = document.getElementById(target+'-other-input-row');
+  const pill = document.getElementById(target+'-other-pill');
+  if(row) row.style.display = 'block';
+  if(pill) pill.style.display = 'none';
+}
+function addOtherFocusArea(target){
+  const input = document.getElementById(target+'-other-input');
+  if(!input) return;
+  const val = input.value.trim();
+  if(!val) return;
+  if(target==='settings'){
+    preserveNotesDraft();
+    if(!STATE.focus.areas.includes(val)) STATE.focus.areas.push(val);
+    persist('focus');
+    renderSettings();
+  } else {
+    if(!onboardState.areas.includes(val)) onboardState.areas.push(val);
+    renderOnboarding();
+  }
+}
+function saveFocusNotes(){
+  STATE.focus.notes = document.getElementById('settings-notes').value.trim();
+  persist('focus');
+  const btn = document.getElementById('save-notes-btn');
+  if(btn){
+    const original = btn.textContent;
+    btn.textContent = '✓ Saved';
+    btn.classList.add('saved-flash');
+    btn.disabled = true;
+    setTimeout(()=>{ btn.textContent = original; btn.classList.remove('saved-flash'); btn.disabled = false; }, 1400);
+  }
+}
+
+function openEditProfile(){
+  const p = STATE.profile;
+  modalRoot.innerHTML = `
+    <div class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div class="modal-sheet">
+        <button class="close-x" onclick="closeModal()">✕</button>
+        <h3>Edit your info</h3>
+        <label>Name</label>
+        <input id="ep-name" type="text" value="${esc(p.name)}">
+        <label>Birth date</label>
+        <input id="ep-date" type="date" value="${p.birthDate}">
+        <label>Birth time</label>
+        <input id="ep-time" type="time" value="${p.birthTime}">
+        ${locationFieldsHTML('ep', {cityName:p.cityName, lat:p.lat, lon:p.lon, utc:p.utcOffset})}
+        <div id="ep-error" class="hint" style="display:none;color:var(--rose);margin-top:10px;"></div>
+        <button class="btn btn-block" style="margin-top:12px;" onclick="saveEditProfile()">Save changes</button>
+      </div>
+    </div>
+  `;
+}
+function saveEditProfile(){
+  const name = document.getElementById('ep-name').value.trim();
+  const date = document.getElementById('ep-date').value;
+  const time = document.getElementById('ep-time').value;
+  const loc = readLocationFields('ep');
+  const {cityName, lat, lon, utc} = loc;
+  if(!name || !date || !time || !cityName){
+    showModalError('Fill in your name, birth date, time, and city.');
+    return;
+  }
+  if(isNaN(lat) || isNaN(lon) || utc===''){
+    const details = document.getElementById('ep-advanced-details');
+    if(details) details.open = true;
+    showModalError('We couldn\'t auto-fill coordinates for that city — tap "Advanced" above and fill in latitude, longitude and UTC offset (or use the map link to look them up).');
+    return;
+  }
+  let chart;
+  try{ chart = buildChart(date, time, lat, lon, Number(utc)); }
+  catch(e){ showModalError('Could not recalculate chart — check your info.'); return; }
+  STATE.profile = {name, birthDate:date, birthTime:time, cityName, lat, lon, utcOffset:Number(utc), chart};
+  persist('profile');
+  STATE.cache = {}; persist('cache'); // chart changed, clear cached readings
+  closeModal();
+  render();
+}
+
+/* ---------- TAB NAV ---------- */
+
+document.getElementById('tabbar').addEventListener('click',(e)=>{
+  const btn = e.target.closest('.tab');
+  if(!btn) return;
+  STATE.tab = btn.dataset.tab;
+  render();
+});
+
+/* ---------- INIT ---------- */
+render();
+</script>
+</body>
+</html>
